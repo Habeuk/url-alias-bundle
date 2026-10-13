@@ -1,0 +1,11 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+    # Toutes les classes de src/ deviennent des services (id = FQCN).
+    Habeuk\UrlAliasBundle\:
+        resource: '../src'
+        exclude:
+            - '../src/UrlAliasBundle.php'
+            - '../src/Entity/'
+            - '../src/Shared/'

@@ -1,0 +1,28 @@
+{
+    "name": "habeuk/url-alias-bundle",
+    "description": "Gestion des URL lisibles (alias) pour les entites Doctrine : generation automatique par modele, resolution d'un chemin vers une entite et mise en cache.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Habeuk\\UrlAliasBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "kouwa stephane",
+            "email": "kksasteph888@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4",
+        "doctrine/orm": "^3.0",
+        "symfony/framework-bundle": "^7.0 || ^8.0",
+        "symfony/string": "^7.0 || ^8.0"
+    },
+    "suggest": {
+        "habeuk/habeuk_base_symfony": "Fournit AbstractBaseEntity, AliasableEntityInterface et l'infrastructure de domain events. Requis si vos entites etendent AliasEntitiesBase."
+    }
+}
