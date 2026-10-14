@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Habeuk\UrlAliasBundle;
 
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -10,10 +9,6 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 /**
  * Bundle de gestion des alias d'URL.
- *
- * Il isole le mecanisme d'alias du socle Habeuk\HbkSymfony : un projet qui n'a
- * pas besoin d'URL lisibles n'installe pas ce bundle et ne recupere donc ni les
- * entites EntityTypeAlias / EntityUrlAlias, ni leurs tables.
  */
 final class UrlAliasBundle extends AbstractBundle {
 
