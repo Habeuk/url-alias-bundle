@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Habeuk\UrlAliasBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,7 +51,7 @@ class UrlAliasGenerator {
       $class = $entity::class;
     }
     $id = $entity->getId();
-    if (! $id)
+    if ($id === null)
       throw new \LogicException('Entity must be persisted.');
     if (! $entity->isAutoGenerateAlias()) {
       return $this->generationManuelle($entity, $class);
@@ -71,7 +70,7 @@ class UrlAliasGenerator {
     $qb = $this->em->createQueryBuilder();
     $qb->select('eta as type_alias', 'u.url as old_url', 'u.id');
     $qb->from(EntityTypeAlias::class, 'eta');
-    $qb->Where('eta.entityClass = :eta_entityClass');
+    $qb->where('eta.entityClass = :eta_entityClass');
     $qb->andWhere('eta.isDefault = :eta_isDefault');
     $qb->setParameter('eta_isDefault', true);
     $qb->leftJoin(EntityUrlAlias::class, 'u', 'WITH', 'u.typeAlias = eta.id and u.entityId = :u_entityId');
@@ -79,7 +78,7 @@ class UrlAliasGenerator {
     $qb->setParameter('eta_entityClass', $class);
     $qb->setMaxResults(1);
     $result = $qb->getQuery()->getOneOrNullResult();
-    if (! $result) {
+    if ($result === null) {
       throw new \LogicException("No default EntityTypeAlias for $class");
     }
     /**
@@ -92,7 +91,7 @@ class UrlAliasGenerator {
       throw new \LogicException('EntityTypeAlias model must be defined.');
     }
     $new_url = $this->replacer->replaceTokens($model, $entity);
-    if ($new_url === $result['old_url'] && $result['id']) {
+    if ($new_url === $result['old_url'] && isset($result['id'])) {
       $entityUrlAlias = $this->em->getRepository(EntityUrlAlias::class)->find($result['id']);
       if (null === $entityUrlAlias) {
         throw new \LogicException('EntityUrlAlias introuvable pour cet identifiant.');
@@ -102,10 +101,10 @@ class UrlAliasGenerator {
 
     $new_url = $this->generateUniqueUrl($new_url, $typeAlias, $entity);
     // cas mise a jour
-    if (! empty($result['old_url'])) {
+    if (isset($result['old_url']) && $result['old_url'] !== '') {
       /**
        *
-       * @var EntityUrlAlias $entityUrlAlias
+       * @var EntityUrlAlias|null $entityUrlAlias
        */
       $entityUrlAlias = $this->em->getRepository(EntityUrlAlias::class)->find($result['id']);
       if (null === $entityUrlAlias) {
@@ -151,7 +150,7 @@ class UrlAliasGenerator {
     $qb->setParameter('u_entityId', $entityId);
     $qb->setParameter('u2_url', $new_url);
     $result = $qb->getQuery()->getOneOrNullResult();
-    if (! empty($result['entity_url'])) {
+    if (isset($result['entity_url']) && $result['entity_url'] !== '') {
       /**
        *
        * @var EntityUrlAlias $entityUrlAlias
@@ -159,10 +158,10 @@ class UrlAliasGenerator {
       $entityUrlAlias = $result['entity_url'];
       $old_url = $entityUrlAlias->getUrl();
       // si cest la meme URL, on passe.
-      if ($old_url == $new_url) {
+      if ($old_url === $new_url) {
         return $result['entity_url'];
       }
-      if ($result['urlExiste']) {
+      if (isset($result['urlExiste'])) {
         $typeAlias = $entityUrlAlias->getTypeAlias();
         if (null === $typeAlias) {
           throw new \LogicException('EntityUrlAlias typeAlias must be defined.');
@@ -184,10 +183,10 @@ class UrlAliasGenerator {
       ->setParameter('isDefault', true)
       ->getQuery()
       ->getOneOrNullResult();
-    if (! $typeAlias) {
+    if ($typeAlias === null) {
       throw new \LogicException("No default EntityTypeAlias for $class");
     }
-    if (! empty($result) && ! empty($result['urlExiste'])) {
+    if (isset($result) && isset($result['urlExiste'])) {
       $new_url = $this->generateUniqueUrl($new_url, $typeAlias, $entity);
       // on definie false, pour eviter de faire une boucle infinit.
       $entity->setUrlAlias($new_url, false);
@@ -217,7 +216,7 @@ class UrlAliasGenerator {
         'url' => $url,
         'typeAlias' => $typeAlias
       ]);
-      if (! $existing || $existing->getEntityId() === $currentEntity->getId()) {
+      if ($existing === null || $existing->getEntityId() === $currentEntity->getId()) {
         return $url;
       }
       if ($counter > self::MAX_UNIQUE_ATTEMPTS) {

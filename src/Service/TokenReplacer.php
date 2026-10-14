@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Habeuk\UrlAliasBundle\Service;
 
 use Symfony\Component\PropertyAccess\PropertyAccess;
@@ -37,7 +36,9 @@ class TokenReplacer {
 
       if ($this->accessor->isReadable($entity, $propertyPath)) {
         $value = $this->accessor->getValue($entity, $propertyPath);
-        $replacement = $value !== null ? $this->slugger->slug((string) $value)->lower() : '';
+        $replacement = $value !== null ? $this->slugger->slug((string) $value)
+          ->lower()
+          ->toString() : '';
       }
 
       $model = str_replace('{entity.' . $propertyPath . '}', $replacement, $model);

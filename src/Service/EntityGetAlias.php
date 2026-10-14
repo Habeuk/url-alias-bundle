@@ -1,6 +1,5 @@
 <?php
 declare(strict_types = 1);
-
 namespace Habeuk\UrlAliasBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -86,12 +85,13 @@ class EntityGetAlias {
       ->setParameter('e_id', $id)
       ->setMaxResults(1);
 
+    /** @var array<string, string|null>|null $data */
     $data = $qb->getQuery()->getOneOrNullResult();
-
-    if (! empty($data) && ! empty($data['url'])) {
+    if ($data === null)
+      return null;
+    if (isset($data['url']) && $data['url'] !== '') {
       return '/' . $data['url'];
     }
-
     return null;
   }
 
@@ -104,7 +104,7 @@ class EntityGetAlias {
    * @param AliasEntitiesBase[] $entities
    */
   public function preloadAliases(array $entities): void {
-    if (empty($entities)) {
+    if ($entities === []) {
       return;
     }
 
@@ -142,6 +142,7 @@ class EntityGetAlias {
         ->andWhere('e.id IN (:ids)')
         ->setParameter('ids', $ids);
 
+      /** @var list<array<string, string|null>> $results */
       $results = $qb->getQuery()->getArrayResult();
 
       // Cache negatif : toute entite non trouvee est memorisee a null pour
@@ -150,7 +151,7 @@ class EntityGetAlias {
         self::$menus[$class][$id] = null;
       }
       foreach ($results as $row) {
-        if (! empty($row['url'])) {
+        if (isset($row['url']) && $row['url'] !== '') {
           self::$menus[$class][(int) $row['eid']] = '/' . $row['url'];
         }
       }
